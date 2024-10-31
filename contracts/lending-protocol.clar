@@ -39,3 +39,8 @@
 
 (define-map collateral-balances principal uint)
 (define-map borrow-balances principal uint)
+
+;; Read-only functions
+(define-read-only (get-loan (user principal))
+    (map-get? loans user)
+)
