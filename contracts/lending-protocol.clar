@@ -1,6 +1,7 @@
 ;; BTC Lending Protocol
 ;; A decentralized lending platform built on Stacks
 
+
 ;; Error Codes
 (define-constant ERR-NOT-AUTHORIZED (err u100))
 (define-constant ERR-INSUFFICIENT-BALANCE (err u101))
@@ -54,11 +55,17 @@
 
 (define-read-only (get-current-collateral-ratio (user principal))
     (let (
-        (loan (unwrap! (get-loan user) (err u0)))
-        (collateral-value (* (get collateral-amount loan) (var-get btc-price-in-cents)))
-        (borrowed-value (* (get borrowed-amount loan) u100))
+        (loan (get-loan user))
     )
-    (/ (* collateral-value u100) borrowed-value))
+        (match loan
+            loan-data (let (
+                (collateral-value (* (get collateral-amount loan-data) (var-get btc-price-in-cents)))
+                (borrowed-value (* (get borrowed-amount loan-data) u100))
+            )
+                (ok (/ (* collateral-value u100) borrowed-value)))
+            (err u0)
+        )
+    )
 )
 
 ;; Price Oracle Functions
@@ -157,7 +164,7 @@
 (define-public (liquidate (user principal))
     (let (
         (loan (unwrap! (get-loan user) ERR-LOAN-NOT-FOUND))
-        (collateral-ratio (get-current-collateral-ratio user))
+        (collateral-ratio (unwrap! (get-current-collateral-ratio user) ERR-LOAN-NOT-FOUND))
     )
         (asserts! (is-price-valid) ERR-PRICE-EXPIRED)
         (asserts! (< collateral-ratio LIQUIDATION_THRESHOLD) ERR-INVALID-LIQUIDATION)
