@@ -71,3 +71,8 @@
         (var-set last-price-update block-height)
         (ok true))
 )
+
+
+(define-read-only (is-price-valid)
+    (< (- block-height (var-get last-price-update)) PRICE_VALIDITY_PERIOD)
+)
