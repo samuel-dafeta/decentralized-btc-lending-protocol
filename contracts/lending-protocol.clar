@@ -61,3 +61,13 @@
     )
     (/ (* collateral-value u100) borrowed-value))
 )
+
+
+;; Price Oracle Functions
+(define-public (update-btc-price (new-price-in-cents uint))
+    (begin
+        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+        (var-set btc-price-in-cents new-price-in-cents)
+        (var-set last-price-update block-height)
+        (ok true))
+)
