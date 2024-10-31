@@ -36,3 +36,6 @@
         interest-rate: uint
     }
 )
+
+(define-map collateral-balances principal uint)
+(define-map borrow-balances principal uint)
