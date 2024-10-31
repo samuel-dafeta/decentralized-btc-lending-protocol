@@ -119,3 +119,41 @@
         (var-set total-loans (+ (var-get total-loans) amount))
         (ok true))
 )
+
+(define-public (repay-loan (amount uint))
+    (let (
+        (loan (unwrap! (get-loan tx-sender) ERR-LOAN-NOT-FOUND))
+        (current-borrowed (get borrowed-amount loan))
+    )
+        (asserts! (>= amount u0) ERR-INVALID-AMOUNT)
+        (asserts! (<= amount current-borrowed) ERR-INVALID-AMOUNT)
+        
+        ;; Calculate interest
+        (let (
+            (blocks-elapsed (- block-height (get last-update loan)))
+            (interest-amount (/ (* current-borrowed (get interest-rate loan) blocks-elapsed) (* u100 u144 u365)))
+            (total-due (+ amount interest-amount))
+        )
+            (try! (stx-transfer? total-due tx-sender (as-contract tx-sender)))
+            
+            ;; Update loan state
+            (if (is-eq amount current-borrowed)
+                (begin
+                    (map-delete loans tx-sender)
+                    (map-delete borrow-balances tx-sender))
+                (begin
+                    (map-set loans 
+                        tx-sender
+                        {
+                            collateral-amount: (get collateral-amount loan),
+                            borrowed-amount: (- current-borrowed amount),
+                            last-update: block-height,
+                            interest-rate: (get interest-rate loan)
+                        })
+                    (map-set borrow-balances 
+                        tx-sender 
+                        (- (get-borrow-balance tx-sender) amount))))
+            
+            (var-set total-loans (- (var-get total-loans) amount))
+            (ok true)))
+)
