@@ -48,3 +48,7 @@
 (define-read-only (get-collateral-balance (user principal))
     (default-to u0 (map-get? collateral-balances user))
 )
+
+(define-read-only (get-borrow-balance (user principal))
+    (default-to u0 (map-get? borrow-balances user))
+)
