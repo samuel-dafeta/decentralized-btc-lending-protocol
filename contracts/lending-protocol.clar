@@ -191,3 +191,12 @@
             
             (ok true)))
 )
+
+;; Governance Functions
+(define-public (update-protocol-fee (new-fee uint))
+    (begin
+        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+        (asserts! (<= new-fee u10) ERR-INVALID-AMOUNT) ;; Max 10% fee
+        (var-set protocol-fee-percentage new-fee)
+        (ok true))
+)
