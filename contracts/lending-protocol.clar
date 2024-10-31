@@ -10,4 +10,11 @@
 (define-constant ERR-LOAN-NOT-FOUND (err u104))
 (define-constant ERR-LOAN-ALREADY-EXISTS (err u105))
 (define-constant ERR-INVALID-LIQUIDATION (err u106))
-(define-constant ERR-PRICE-EXPIRED (err u107))
+
+
+;; Constants
+(define-constant MIN-COLLATERAL-RATIO u150) ;; 150% minimum collateral ratio
+(define-constant LIQUIDATION_THRESHOLD u130) ;; 130% liquidation threshold
+(define-constant LIQUIDATION_PENALTY u10) ;; 10% penalty on liquidation
+(define-constant PRICE_VALIDITY_PERIOD u3600) ;; 1 hour price validity
+(define-constant CONTRACT-OWNER tx-sender)
