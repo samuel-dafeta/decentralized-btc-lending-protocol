@@ -76,3 +76,17 @@
 (define-read-only (is-price-valid)
     (< (- block-height (var-get last-price-update)) PRICE_VALIDITY_PERIOD)
 )
+
+;; Core Lending Functions
+(define-public (deposit-collateral (amount uint))
+    (begin
+        (asserts! (> amount u0) ERR-INVALID-AMOUNT)
+        (try! (stx-transfer? amount tx-sender (as-contract tx-sender)))
+        
+        (map-set collateral-balances 
+            tx-sender 
+            (+ (get-collateral-balance tx-sender) amount))
+        
+        (var-set total-collateral (+ (var-get total-collateral) amount))
+        (ok true))
+)
