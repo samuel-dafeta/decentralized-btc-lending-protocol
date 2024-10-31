@@ -157,3 +157,37 @@
             (var-set total-loans (- (var-get total-loans) amount))
             (ok true)))
 )
+
+
+(define-public (liquidate (user principal))
+    (let (
+        (loan (unwrap! (get-loan user) ERR-LOAN-NOT-FOUND))
+        (collateral-ratio (get-current-collateral-ratio user))
+    )
+        (asserts! (is-price-valid) ERR-PRICE-EXPIRED)
+        (asserts! (< collateral-ratio LIQUIDATION_THRESHOLD) ERR-INVALID-LIQUIDATION)
+        
+        (let (
+            (collateral-amount (get collateral-amount loan))
+            (borrowed-amount (get borrowed-amount loan))
+            (liquidation-value (* borrowed-amount (+ u100 LIQUIDATION_PENALTY)))
+            (remaining-collateral (- collateral-amount liquidation-value))
+        )
+            ;; Transfer liquidation value to protocol
+            (try! (stx-transfer? liquidation-value tx-sender (as-contract tx-sender)))
+            
+            ;; Clear the loan
+            (map-delete loans user)
+            (map-delete borrow-balances user)
+            
+            ;; Update protocol state
+            (var-set total-loans (- (var-get total-loans) borrowed-amount))
+            (var-set total-collateral (- (var-get total-collateral) collateral-amount))
+            
+            ;; Return remaining collateral to user
+            (if (> remaining-collateral u0)
+                (try! (as-contract (stx-transfer? remaining-collateral (as-contract tx-sender) user)))
+                true)
+            
+            (ok true)))
+)
