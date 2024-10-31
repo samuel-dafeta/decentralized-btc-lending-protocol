@@ -18,3 +18,10 @@
 (define-constant LIQUIDATION_PENALTY u10) ;; 10% penalty on liquidation
 (define-constant PRICE_VALIDITY_PERIOD u3600) ;; 1 hour price validity
 (define-constant CONTRACT-OWNER tx-sender)
+
+;; Data Variables
+(define-data-var total-loans uint u0)
+(define-data-var total-collateral uint u0)
+(define-data-var btc-price-in-cents uint u0)
+(define-data-var last-price-update uint u0)
+(define-data-var protocol-fee-percentage uint u1) ;; 1% fee
