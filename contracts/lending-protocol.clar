@@ -25,3 +25,14 @@
 (define-data-var btc-price-in-cents uint u0)
 (define-data-var last-price-update uint u0)
 (define-data-var protocol-fee-percentage uint u1) ;; 1% fee
+
+;; Principal Maps
+(define-map loans 
+    principal 
+    {
+        collateral-amount: uint,
+        borrowed-amount: uint,
+        last-update: uint,
+        interest-rate: uint
+    }
+)
