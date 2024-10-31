@@ -1,6 +1,5 @@
 ;; BTC Lending Protocol
 ;; A decentralized lending platform built on Stacks
-;; Version: 1.0.0
 
 ;; Error Codes
 (define-constant ERR-NOT-AUTHORIZED (err u100))
@@ -10,7 +9,7 @@
 (define-constant ERR-LOAN-NOT-FOUND (err u104))
 (define-constant ERR-LOAN-ALREADY-EXISTS (err u105))
 (define-constant ERR-INVALID-LIQUIDATION (err u106))
-
+(define-constant ERR-PRICE-EXPIRED (err u107))
 
 ;; Constants
 (define-constant MIN-COLLATERAL-RATIO u150) ;; 150% minimum collateral ratio
@@ -62,7 +61,6 @@
     (/ (* collateral-value u100) borrowed-value))
 )
 
-
 ;; Price Oracle Functions
 (define-public (update-btc-price (new-price-in-cents uint))
     (begin
@@ -71,7 +69,6 @@
         (var-set last-price-update block-height)
         (ok true))
 )
-
 
 (define-read-only (is-price-valid)
     (< (- block-height (var-get last-price-update)) PRICE_VALIDITY_PERIOD)
@@ -90,7 +87,6 @@
         (var-set total-collateral (+ (var-get total-collateral) amount))
         (ok true))
 )
-
 
 (define-public (borrow (amount uint))
     (let (
@@ -158,7 +154,6 @@
             (ok true)))
 )
 
-
 (define-public (liquidate (user principal))
     (let (
         (loan (unwrap! (get-loan user) ERR-LOAN-NOT-FOUND))
@@ -198,5 +193,13 @@
         (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
         (asserts! (<= new-fee u10) ERR-INVALID-AMOUNT) ;; Max 10% fee
         (var-set protocol-fee-percentage new-fee)
+        (ok true))
+)
+
+;; Emergency Functions
+(define-public (pause-protocol)
+    (begin
+        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+        ;; Implementation of pause mechanism
         (ok true))
 )
